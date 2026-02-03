@@ -16,6 +16,9 @@
 ```csharp
 using Mass.Sdk;
 
+// 寻找 Mass 服务
+var massClient = await MassClient.FindAsync();
+
 // 登录 Mass
 await massClient.MassLogin("TOKEN");
 

@@ -5,9 +5,6 @@ namespace Mass.Sdk.Desktop;
 
 public class DesktopClient(MassClient client)
 {
-    public async Task<DesktopSession> RandomLogin()
-        => new (client, await client.Request<string>(new RestRequest("/api/mobile/login/random", Method.Post)));
-    
     public async Task<DesktopSession> LoginCookies(string cookies)
         => new (client, await client.Request<string>(new RestRequest("/api/desktop/login/cookies", Method.Post)
             .AddParameter("cookies", cookies)));
@@ -31,8 +28,16 @@ public class DesktopClient(MassClient client)
             .AddParameter("mobile", mobile)
             .AddParameter("code", code)));
     
-    public async Task<DesktopSession> Login4399(string username, string password)
-        => new (client, await client.Request<string>(new RestRequest("/api/desktop/login/4399", Method.Post)
+    public async Task<DesktopSession> Login4399Pc(string username, string password)
+        => new (client, await client.Request<string>(new RestRequest("/api/desktop/login/4399pc", Method.Post)
             .AddParameter("username", username)
             .AddParameter("password", password)));
+    
+    public async Task<DesktopSession> Login4399Com(string username, string password)
+        => new (client, await client.Request<string>(new RestRequest("/api/desktop/login/4399com", Method.Post)
+            .AddParameter("username", username)
+            .AddParameter("password", password)));
+    
+    public async Task<DesktopSession> Login4399ComRandom()
+        => new (client, await client.Request<string>(new RestRequest("/api/desktop/login/random-4399com", Method.Post)));
 }

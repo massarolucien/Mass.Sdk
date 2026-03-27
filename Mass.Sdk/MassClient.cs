@@ -1,5 +1,6 @@
 using Mass.Sdk.Desktop;
 using Mass.Sdk.Helpers;
+using Mass.Sdk.Mobile;
 using Mass.Sdk.Models;
 using RestSharp;
 using RestSharp.Serializers.Json;
@@ -15,6 +16,7 @@ public class MassClient : IDisposable
             s.UseSystemTextJson(JsonHelper.SnakeCaseOptions);
         });
         Desktop = new DesktopClient(this);
+        Mobile = new MobileClient(this);
     }
     private readonly RestClient _client;
 
@@ -64,8 +66,8 @@ public class MassClient : IDisposable
         => await Request(new RestRequest("/api/security/login", Method.Post)
             .AddParameter("token", token));
     
-    public DesktopClient Desktop;
-
+    public readonly DesktopClient Desktop;
+    public readonly MobileClient Mobile;
     public void Dispose()
     {
         _client.Dispose();

@@ -1,4 +1,5 @@
 ﻿using Mass.Sdk;
+using Mass.Sdk.Example;
 using Mass.Sdk.Helpers;
 using Serilog;
 
@@ -12,14 +13,18 @@ public class Program
             .Console()
             .CreateLogger();
         
+        // 查找本地Mass服务
         var massClient = await MassClient.FindAsync();
         
+        // 从 Mass 服务端获取临时Token
+        var token = await Server.GetToken("YOUR_USERNAME");
+        
         // 登录 Mass
-        await massClient.MassLogin("bUSNBWWVT+G5OC/jKU3IWd2X8xec5e20WBv8RnUjxWzV3030/6EyH3f5YvIL+mHaFo6+CSoo46u5uIMs9d/pJS4cXaks6c1UYSPjanbqSQuIaAkYLnLRp28DhCoHDEVOO9ja0zRlWzkZcHW0HiYG8RCeIJ8VUltzDLR60df0hLzeDsR95u6uouqiga1HJ7lHcBWwvj48R5rclnzrGX8lUGvVQ5hWkWd0KsuGtpE38VYEEKg6DU8axnY2uVxSZ+xWprEorbVSurBawh+Hn8iHi/eqo568O4q0UvZa3SL4tdsBmPv0KRvAVnl90FGhsYY770plJARarZN1/ma8RTrR9w==");
+        await massClient.MassLogin(token);
         Log.Information("成功登录Mass");
         
         // 随机小号登录
-        var session = await massClient.Desktop.RandomLogin();
+        var session = await massClient.Desktop.Login4399ComRandom();
         Log.Information("成功登录 {UserId}", session.UserId);
         
         // 获取网络服务器列表
@@ -27,7 +32,7 @@ public class Program
         var heypixelGame = netGames.First(n => n.Name.Contains("布吉岛"));
         Log.Information("{Name} {Id}", heypixelGame.Name, heypixelGame.Id);
 
-        // 添加随机角色        
+        // 添加随机角色
         await session.AddNetGameCharacter(heypixelGame.Id, RandomHelper.GetString(10));
         
         // 获取角色列表

@@ -1,7 +1,10 @@
 using Mass.Sdk.Desktop;
 using Mass.Sdk.Helpers;
+using Mass.Sdk.Instance;
+using Mass.Sdk.Instance.Models;
 using Mass.Sdk.Mobile;
 using Mass.Sdk.Models;
+using Microsoft.AspNetCore.SignalR.Client;
 using RestSharp;
 using RestSharp.Serializers.Json;
 
@@ -11,13 +14,17 @@ public class MassClient : IDisposable
 {
     public MassClient(string baseUrl)
     {
+        BaseUrl = baseUrl;
         _client = new RestClient(new RestClientOptions(baseUrl), configureSerialization: s =>
         {
             s.UseSystemTextJson(JsonHelper.SnakeCaseOptions);
         });
         Desktop = new DesktopClient(this);
         Mobile = new MobileClient(this);
+        Instance = new InstanceClient(this);
     }
+
+    internal readonly string BaseUrl;
     private readonly RestClient _client;
 
     public async Task Request(RestRequest request)
@@ -31,6 +38,35 @@ public class MassClient : IDisposable
         if (response.Data.Code != 200)
             throw new HttpRequestException(response.Data.Msg);
         return response.Data.Data;
+    }
+
+    public async Task<GameInstance> Progress(string url, IProgress<Progress>? callback = null)
+    {
+        var source = new TaskCompletionSource<GameInstance>();
+        
+        var connection = new HubConnectionBuilder()
+            .WithUrl($"{BaseUrl}{url}")
+            .Build();
+
+        connection.On<int, int, int, string>("Progress", (step, total, percentage, message) =>
+        {
+            var progress = new Progress(step, total, percentage, message);
+            callback?.Report(progress);
+        });
+
+        connection.On("Disposed", () =>
+        {
+            connection.StopAsync();
+        });
+
+        connection.On<GameInstance>("GameInstance", i =>
+        {
+            source.SetResult(i);
+        });
+
+        await connection.StartAsync();
+
+        return await source.Task;
     }
 
     public async Task<bool> Ping()
@@ -68,6 +104,7 @@ public class MassClient : IDisposable
     
     public readonly DesktopClient Desktop;
     public readonly MobileClient Mobile;
+    public readonly InstanceClient Instance;
     public void Dispose()
     {
         _client.Dispose();

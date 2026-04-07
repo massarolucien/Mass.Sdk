@@ -28,7 +28,6 @@ public class DesktopRentalGame : IDesktopGame
     [JsonPropertyName("visibility")]
     public DesktopVisibilityStatus Visibility { get; set; }
 
-    [JsonConverter(typeof(StringBoolConverter))]
     [JsonPropertyName("has_pwd")]
     public bool HasPassword { get; set; }
     

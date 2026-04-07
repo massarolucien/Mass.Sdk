@@ -1,6 +1,7 @@
 ﻿using Mass.Sdk;
 using Mass.Sdk.Example;
 using Mass.Sdk.Helpers;
+using Mass.Sdk.Models;
 using Serilog;
 
 public class Program
@@ -16,7 +17,7 @@ public class Program
         // 查找本地Mass服务
         var massClient = await MassClient.FindAsync();
         
-        // 从 Mass 服务端获取临时Token
+        // 从 Mass 服务端获取临时 Token
         var token = await Server.GetToken("YOUR_USERNAME");
         
         // 登录 Mass
@@ -25,7 +26,7 @@ public class Program
         
         // 随机小号登录
         var session = await massClient.Desktop.Login4399ComRandom();
-        Log.Information("成功登录 {UserId}", session.UserId);
+        Log.Information("成功登录 {UserId} 昵称 {Nickname} 登录平台 {Platform} 登录方式 {Type} 账户 {Account} 密码 {Password}", session.UserId, session.Nickname, session.Info.Platform, session.Info.Type, session.Info.Account, session.Info.Password);
         
         // 获取网络服务器列表
         var netGames = await session.GetNetGames();
@@ -40,7 +41,9 @@ public class Program
         var character = characters.First();
         
         // 启动代理服务
-        var port = await session.StartNetGameProxy(heypixelGame.Id, character.Name);
-        Log.Information("代理服务启动在 {Address}", $"127.0.0.1:{port}");
+        var instance = await session.StartNetGameProxy(heypixelGame.Id, character.Name);
+        Log.Information("代理服务启动在 {Address}", $"127.0.0.1:{instance.Port}");
+        
+        await Task.Delay(Timeout.Infinite);
     }
 }

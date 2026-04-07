@@ -8,7 +8,7 @@ public class ApiResponse
     public string Msg { get; set; } = string.Empty;
     public override string ToString() => JsonHelper.SerializeSnakeCase(this);
 }
-public class ApiResponse<T> : ApiResponse
+public class ApiResponse<TData> : ApiResponse
 {
-    public T? Data { get; set; }
+    public TData? Data { get; set; }
 }
